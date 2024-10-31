@@ -1,4 +1,3 @@
-// src/components/CurrencyConverter.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Picker, StyleSheet } from 'react-native';
 import { fetchExchangeRate } from '../src/CurrencyService';
@@ -47,7 +46,7 @@ const CurrencyConverter = () => {
         <Picker.Item label="USD" value="USD" />
         <Picker.Item label="EUR" value="EUR" />
         <Picker.Item label="GBP" value="GBP" />
-        {/* Add more currencies as needed */}
+    
       </Picker>
 
       <Text style={styles.label}>To:</Text>
@@ -59,7 +58,7 @@ const CurrencyConverter = () => {
         <Picker.Item label="USD" value="USD" />
         <Picker.Item label="EUR" value="EUR" />
         <Picker.Item label="GBP" value="GBP" />
-        {/* Add more currencies as needed */}
+        
       </Picker>
 
       <Button title={loading ? "Converting..." : "Convert"} onPress={handleConvert} disabled={loading} />
