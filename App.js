@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   SafeAreaView, 
   View, 
   Text, 
   TextInput, 
-  TouchableOpacity, 
   Picker, 
   StyleSheet, 
   ActivityIndicator, 
@@ -21,28 +20,29 @@ const App = () => {
   const [conversionResult, setConversionResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [slideAnim] = useState(new Animated.Value(-100)); //Transition I added//
+  const [slideAnim] = useState(new Animated.Value(-100));
+
+  useEffect(() => {
+    if (amount) {
+      handleConvert();
+    }
+  }, [amount, baseCurrency, targetCurrency]); 
 
   const handleConvert = async () => {
     const numericAmount = parseFloat(amount);
-    console.log(`Parsed Amount: ${numericAmount}`); // Debugging line//
-
-    
     if (!amount || isNaN(numericAmount) || numericAmount <= 0) {
-      Alert.alert('Invalid Input', 'Please enter a valid amount greater than zero.');
+      setConversionResult(null); 
       return;
-    }//validation//
+    }
 
     setLoading(true);
     try {
       const rate = await fetchExchangeRate(baseCurrency, targetCurrency);
-
       if (rate !== null && rate !== undefined) {
         const convertedAmount = (numericAmount * rate).toFixed(2);
         setConversionResult(convertedAmount);
 
-       
-        slideAnim.setValue(-100); 
+        slideAnim.setValue(-100);
         Animated.timing(slideAnim, {
           toValue: 0, 
           duration: 300,
@@ -56,13 +56,6 @@ const App = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClear = () => {
-    setAmount('');
-    setConversionResult(null);
-    setLoading(false);
-    slideAnim.setValue(-100); //slide animation//
   };
 
   const toggleTheme = () => {
@@ -107,30 +100,6 @@ const App = () => {
       color: isDarkMode ? '#FFFFFF' : '#000',
       borderRadius: 8,
       marginHorizontal: 5
-    },
-    buttonContainer: {
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      marginTop: 10,
-    },
-    buttonWrapper: {
-      marginVertical: 10, 
-      width: '50%',
-    },
-    convertButton: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 20,
-      padding: 15, 
-      alignItems: 'center',  
-      
-      
-    },
-    clearButton: {
-      backgroundColor: '#f44336',
-      borderRadius: 20,
-      padding: 15, 
-      alignItems: 'center',
-       
     },
     resultContainer: {
       marginTop: 30,
@@ -184,8 +153,8 @@ const App = () => {
           style={styles.input}
           placeholder="Enter amount"
           keyboardType="numeric"
-          value={amount}
-          onChangeText={setAmount}
+          value={amount === '0' ? '' : amount}
+          onChangeText={(text) => setAmount(text === '' ? '0' : text)}
           placeholderTextColor={isDarkMode ? '#bbb' : '#777'}
         />
         
@@ -207,7 +176,6 @@ const App = () => {
             <Picker.Item label="ZAR" value="ZAR" />
             <Picker.Item label="SGD" value="SGD" />
             <Picker.Item label="LKR" value="LKR" />
-
           </Picker>
           <Picker
             selectedValue={targetCurrency}
@@ -227,19 +195,6 @@ const App = () => {
             <Picker.Item label="SGD" value="SGD" />
             <Picker.Item label="LKR" value="LKR" />
           </Picker>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.convertButton} onPress={handleConvert}>
-              <Text style={{ color: '#FFFFFF', textAlign: 'center',fontSize: 16,fontWeight:'bold' }}>Convert</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Text style={{ color: '#FFFFFF', textAlign: 'center',fontSize: 18,fontWeight:'bold' }}>Clear</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {loading && (
